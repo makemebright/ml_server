@@ -1,5 +1,9 @@
-Структура проекта:
+# ML_SERVER
 
+This document describes the structure and usage of the ML_SERVER project.
+
+## Project Structure
+```bash
 ML_SERVER/
 │
 ├── client/
@@ -20,49 +24,50 @@ ML_SERVER/
 │   └── .env                # Настройки сервера (.env-файл)
 │
 └── README.md               # Этот файл
+```
 
+## How to Run (WSL:UBUNTU environment)
 
-для запуска (я работал в WSL:UBUNTU) нужно перейти в корень проекта и выполнить:
+Navigate to the project root and execute the following commands:
 
-1. Построение сервера:
+1.  **Build the server:**
 
-docker build -t ml-server ./server
+    ```bash
+    docker build -t ml-server ./server
+    ```
 
-2. Запуск сервера :
+2.  **Run the server:**
 
-docker run \
-  -p 8991:8991 \
-  -v "$(pwd)/models:/ml_server/models" \
-  -v /tmp:/tmp \
-  --env-file server/.env \
-  --name ml-server-debug \
-  ml-server
+    ```bash
+    docker run \
+      -p 8991:8991 \
+      -v "$(pwd)/models:/ml_server/models" \
+      -v /tmp:/tmp \
+      --env-file server/.env \
+      --name ml-server-debug \
+      ml-server
+    ```
 
-Модели сохраняются в директорию models/.
+    * Models are saved to the `models/` directory.
+    * Training data for asynchronous training may be temporarily saved in `/tmp` in `.npy` format.
+    * Port 8991 is exposed.
 
-Данные для обучения могут временно сохраняться в /tmp в формате .npy - но это для асинхронного обучения.
+## Client Directory
 
-Порт 8991 пробрасывается наружу.
+The `client/` directory contains two files:
 
-В директории client/ доступны 2 файла:
+1.  **`client.ipynb`**
+    Jupyter Notebook with the following functions:
+    * `client_fit(X, y, model_type, config)` — initiates model training (in the same process).
+    * `client_predict(name, X)` — retrieves predictions.
+    * `client_load(name) / client_unload(name)` — loads/unloads a model into/from memory.
+    * `client_remove(name) / client_remove_all()` — deletes one or all models.
 
-1. client.ipynb
-Jupyter Notebook с функциями:
+2.  **`client_async.py`**
+    A script for asynchronous training of multiple models. Its execution is defined in `client.ipynb`.
 
-client_fit(X, y, model_type, config) — запуск обучения модели (в том же процессе).
+## Supported Models
 
-client_predict(name, X) — получить предсказания.
-
-client_load(name) / client_unload(name) — загрузка/выгрузка модели в память.
-
-client_remove(name) / client_remove_all() — удаление одной или всех моделей.
-
-2. client_async.py
-Скрипт для асинхронного обучения нескольких моделей:
-
-Его запуск прописан в client.ipynb
-
-Поддерживаемые модели:
-logreg – логистическая регрессия
-linreg – линейная регрессия
-RandomForest.
+* `logreg` – Logistic Regression
+* `linreg` – Linear Regression
+* `RandomForest`
